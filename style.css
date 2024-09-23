@@ -1,0 +1,70 @@
+body, html, div, header, section, p, h1,h2,h3,h4,h5,h6{
+  margin: 0;
+  padding: 0;
+}
+
+header{
+  background-color: #ddd;
+  color: #333;
+  text-align: center;
+  padding: 2em;
+  margin: 0;
+}
+header h1{
+  font-size: 3em;
+}
+
+section{
+  margin: 0;
+  width: 100%;
+  padding: 5em 5vw;
+
+  background-color: aqua;
+}
+
+table{
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+}
+td{
+  border: 1px solid #333;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  font-size: 1em;
+}
+button{
+  padding: 0.5em 1em;
+  font-size: 1em;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-top: 2em;
+}
+.col-header{
+  background-color: #ddd;
+  color: #333;
+  height: 120px;
+  vertical-align: bottom;
+}
+.col-header p{
+  color: #333;
+  font-size: 1em;
+  margin-bottom: 3px;
+}
+.row-header{
+  background-color: #ddd;
+  color: #333;
+  text-align: right;
+  width: 120px;
+}
+.row-header span{
+  font-size: 1em;
+  color:#333;
+  margin-right: 5px;
+}
+td.active{
+  background-color: #555;
+}
