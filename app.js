@@ -499,56 +499,66 @@ const app = Vue.createApp({
       }
     },
     checkCols() {
-      for (let i = 0; i < this.cols.length; i++) {
-        if (this.cols[i].length == 1 && this.cols[i][0] == this.boardSize) {
-          for (let k = 0; k < this.boardSize; k++) {
-            this.setCell(k, i, "active");
-          }
+      for (let i = 0; i < this.boardSize; i++) {
+        let col = [];
+        for (let j = 0; j < this.boardSize; j++) {
+          col.push(this.board[i][j]);
         }
-
-        let options =
-          this.boardSize -
-          this.cols[i].reduce((a, b) => a + b, 0) +
-          this.cols[i].length;
-        let tempCol = [];
-        for (let o = 0; o < options; o++) {
-          tempCol[o] = [];
-
-          for (let j = 0; j < o; j++) {
-            tempCol[o].push("clear");
-          }
-
-          for (let k = 0; k < this.cols[i].length; k++) {
-            for (let j = 0; j < this.cols[i][k]; j++) {
-              tempCol[o].push("active");
-            }
-            if (tempCol.length < this.boardSize) {
-              tempCol[o].push("clear");
-            }
-          }
-
-          while (tempCol[o].length < this.boardSize) {
-            tempCol[o].push("clear");
-          }
-        }
-
-        for (let r = 0; r < this.boardSize; r++) {
-          let valid = true;
-          let val = "";
-          for (let o = 0; o < options; o++) {
-            if (val == "") {
-              val = tempCol[o][r];
-            } else if (val != tempCol[o][r]) {
-              valid = false;
-              break;
-            }
-          }
-
-          if (valid) {
-            this.setCell(r, i, tempCol[0][r]);
-          }
+        col = this.checkCollection(this.cols[i], col);
+        for (let j = 0; j < this.boardSize; j++) {
+          this.board[i][j] = col[j];
         }
       }
+      // for (let i = 0; i < this.cols.length; i++) {
+      //   if (this.cols[i].length == 1 && this.cols[i][0] == this.boardSize) {
+      //     for (let k = 0; k < this.boardSize; k++) {
+      //       this.setCell(k, i, "active");
+      //     }
+      //   }
+
+      //   let options =
+      //     this.boardSize -
+      //     this.cols[i].reduce((a, b) => a + b, 0) +
+      //     this.cols[i].length;
+      //   let tempCol = [];
+      //   for (let o = 0; o < options; o++) {
+      //     tempCol[o] = [];
+
+      //     for (let j = 0; j < o; j++) {
+      //       tempCol[o].push("clear");
+      //     }
+
+      //     for (let k = 0; k < this.cols[i].length; k++) {
+      //       for (let j = 0; j < this.cols[i][k]; j++) {
+      //         tempCol[o].push("active");
+      //       }
+      //       if (tempCol.length < this.boardSize) {
+      //         tempCol[o].push("clear");
+      //       }
+      //     }
+
+      //     while (tempCol[o].length < this.boardSize) {
+      //       tempCol[o].push("clear");
+      //     }
+      //   }
+
+      //   for (let r = 0; r < this.boardSize; r++) {
+      //     let valid = true;
+      //     let val = "";
+      //     for (let o = 0; o < options; o++) {
+      //       if (val == "") {
+      //         val = tempCol[o][r];
+      //       } else if (val != tempCol[o][r]) {
+      //         valid = false;
+      //         break;
+      //       }
+      //     }
+
+      //     if (valid) {
+      //       this.setCell(r, i, tempCol[0][r]);
+      //     }
+      //   }
+      // }
     },
     checkRows() {
       for (let i = 0; i < this.boardSize; i++) {
