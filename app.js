@@ -23,7 +23,28 @@ const app = Vue.createApp({
         [2, 11],
         [8],
       ],
-      rows: [[7], [3, 2], [3, 3, 2], [1, 2, 2, 1], [1, 1, 1, 1], []],
+      rows: [
+        [7],
+        [3, 2],
+        [3, 3, 2],
+        [1, 2, 2, 1],
+        [1, 1, 1, 1],
+        [2, 1, 2, 4],
+        [1, 3, 2, 2],
+        [1, 5, 2, 1, 1],
+        [2, 3, 2, 2, 2],
+        [3, 1, 4, 2, 2],
+        [3, 2, 1, 2, 5],
+        [6, 2, 2, 6],
+        [3, 3, 3, 4],
+        [3, 3, 3, 3],
+        [2, 2, 3, 2],
+        [3, 2, 5],
+        [2, 3, 5],
+        [2, 3, 4],
+        [4, 4, 4],
+        [2, 3],
+      ],
       board: [
         [
           "",
@@ -468,6 +489,7 @@ const app = Vue.createApp({
       ],
       boardSize: 20,
       interactions: 0,
+      isValid: false,
     };
   },
   methods: {
@@ -531,55 +553,6 @@ const app = Vue.createApp({
     checkRows() {
       for (let i = 0; i < this.boardSize; i++) {
         this.board[i] = this.checkCollection(this.rows[i], this.board[i]);
-        // if (this.rows[i].length == 1 && this.rows[i][0] == this.boardSize) {
-        //   for (let k = 0; k < this.boardSize; k++) {
-        //     this.setCell(i, k, "active");
-        //   }
-        // }
-
-        // let options =
-        //   this.boardSize -
-        //   (this.rows[i].reduce((a, b) => a + b, 0) + this.rows[i].length - 1) +
-        //   1;
-
-        // let tempRow = [];
-        // for (let o = 0; o < options; o++) {
-        //   tempRow[o] = [];
-
-        //   for (let j = 0; j < o; j++) {
-        //     tempRow[o].push("clear");
-        //   }
-
-        //   for (let k = 0; k < this.rows[i].length; k++) {
-        //     for (let j = 0; j < this.rows[i][k]; j++) {
-        //       tempRow[o].push("active");
-        //     }
-        //     if (tempRow.length < this.boardSize) {
-        //       tempRow[o].push("clear");
-        //     }
-        //   }
-
-        //   while (tempRow[o].length < this.boardSize) {
-        //     tempRow[o].push("clear");
-        //   }
-        // }
-
-        // for (let r = 0; r < this.boardSize; r++) {
-        //   let valid = true;
-        //   let val = "";
-        //   for (let o = 0; o < options; o++) {
-        //     if (val == "") {
-        //       val = tempRow[o][r];
-        //     } else if (val != tempRow[o][r]) {
-        //       valid = false;
-        //       break;
-        //     }
-        //   }
-
-        //   if (valid) {
-        //     this.setCell(i, r, tempRow[0][r]);
-        //   }
-        // }
       }
     },
 
@@ -591,46 +564,75 @@ const app = Vue.createApp({
         return boardCol;
       }
 
-      let options =
+      let possibilities =
         this.boardSize -
         (params.reduce((a, b) => a + b, 0) + params.length - 1) +
         1;
-      let tempRow = [];
-      for (let o = 0; o < options; o++) {
-        tempRow[o] = [];
+      let options = [];
+      for (let p = 0; p < possibilities; p++) {
+        let option = [];
 
-        for (let j = 0; j < o; j++) {
-          tempRow[o].push("clear");
+        let keepGoing = true;
+        for (let j = 0; j < p; j++) {
+          if (boardCol[p] == "active") {
+            keepGoing = false;
+            break;
+          }
+          option.push("clear");
+        }
+
+        if (!keepGoing) {
+          continue;
         }
 
         for (let k = 0; k < params.length; k++) {
           for (let j = 0; j < params[k]; j++) {
-            tempRow[o].push("active");
+            if (boardCol[p] == "clear") {
+              keepGoing = false;
+              break;
+            }
+            option.push("active");
           }
-          if (tempRow.length < this.boardSize) {
-            tempRow[o].push("clear");
+          if (!keepGoing) {
+            break;
           }
+          if (options.length < this.boardSize) {
+            option.push("clear");
+          }
+        }
+        if (!keepGoing) {
+          continue;
         }
 
-        while (tempRow[o].length < this.boardSize) {
-          tempRow[o].push("clear");
+        for (let i = option.length; i < this.boardSize; i++) {
+          if (boardCol[i] == "active") {
+            keepGoing = false;
+            break;
+          }
+          option.push("clear");
         }
+
+        if (!keepGoing) {
+          continue;
+        }
+
+        options.push(option);
       }
 
       for (let r = 0; r < this.boardSize; r++) {
         let valid = true;
         let val = "";
-        for (let o = 0; o < options; o++) {
+        for (let p = 0; p < possibilities; p++) {
           if (val == "") {
-            val = tempRow[o][r];
-          } else if (val != tempRow[o][r]) {
+            val = options[p][r];
+          } else if (val != options[p][r]) {
             valid = false;
             break;
           }
         }
 
         if (valid) {
-          boardCol[r] = tempRow[0][r];
+          boardCol[r] = options[0][r];
         }
       }
 
@@ -641,19 +643,25 @@ const app = Vue.createApp({
       for (let i = 0; i < this.boardSize; i++) {
         for (let j = 0; j < this.boardSize; j++) {
           if (this.board[i][j] == "") {
-            return false;
+            isValid = false;
+            return;
           }
         }
       }
-      return true;
+      isValid = true;
     },
 
     solveBoard() {
-      this.checkCols();
-      this.interactions++;
-      this.checkRows();
-      this.interactions++;
-      alert(this.validateBoard());
+      while (!this.isValid) {
+        this.interactions++;
+        this.checkCols();
+        this.checkRows();
+        this.validateBoard();
+
+        if (this.interactions > 10) {
+          break;
+        }
+      }
     },
   },
 });
