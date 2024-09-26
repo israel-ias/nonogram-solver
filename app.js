@@ -1,7 +1,7 @@
 const app = Vue.createApp({
   data() {
     return {
-      cols: [
+      cols20: [
         [1],
         [2, 4],
         [11],
@@ -23,7 +23,7 @@ const app = Vue.createApp({
         [2, 11],
         [8],
       ],
-      rows: [
+      rows20: [
         [7],
         [3, 2],
         [3, 3, 2],
@@ -45,7 +45,7 @@ const app = Vue.createApp({
         [4, 4, 4],
         [2, 3],
       ],
-      board: [
+      board20: [
         [
           "",
           "",
@@ -487,9 +487,36 @@ const app = Vue.createApp({
           "",
         ],
       ],
-      boardSize: 20,
+      cols: [[3], [8], [9], [2, 3], [1, 1], [1, 3, 1], [2, 6], [10], [8], [3]],
+      rows: [
+        [6],
+        [3, 3],
+        [2, 2],
+        [2, 2],
+        [2, 3],
+        [4, 5],
+        [4, 5],
+        [4, 5],
+        [2, 3],
+        [4],
+      ],
+      board: [
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", ""],
+      ],
+      boardSize: 10,
       interactions: 0,
       isValid: false,
+      checkType: "rows",
+      idx: 0,
     };
   },
   methods: {
@@ -502,88 +529,59 @@ const app = Vue.createApp({
       for (let i = 0; i < this.boardSize; i++) {
         let col = [];
         for (let j = 0; j < this.boardSize; j++) {
-          col.push(this.board[i][j]);
+          col.push(this.board[j][i]);
         }
+        console.group("checking column", i);
         col = this.checkCollection(this.cols[i], col);
+        console.log("returned collection", col);
+        console.groupEnd();
         for (let j = 0; j < this.boardSize; j++) {
-          this.board[i][j] = col[j];
+          this.board[j][i] = col[j];
         }
       }
-      // for (let i = 0; i < this.cols.length; i++) {
-      //   if (this.cols[i].length == 1 && this.cols[i][0] == this.boardSize) {
-      //     for (let k = 0; k < this.boardSize; k++) {
-      //       this.setCell(k, i, "active");
-      //     }
-      //   }
-
-      //   let options =
-      //     this.boardSize -
-      //     this.cols[i].reduce((a, b) => a + b, 0) +
-      //     this.cols[i].length;
-      //   let tempCol = [];
-      //   for (let o = 0; o < options; o++) {
-      //     tempCol[o] = [];
-
-      //     for (let j = 0; j < o; j++) {
-      //       tempCol[o].push("clear");
-      //     }
-
-      //     for (let k = 0; k < this.cols[i].length; k++) {
-      //       for (let j = 0; j < this.cols[i][k]; j++) {
-      //         tempCol[o].push("active");
-      //       }
-      //       if (tempCol.length < this.boardSize) {
-      //         tempCol[o].push("clear");
-      //       }
-      //     }
-
-      //     while (tempCol[o].length < this.boardSize) {
-      //       tempCol[o].push("clear");
-      //     }
-      //   }
-
-      //   for (let r = 0; r < this.boardSize; r++) {
-      //     let valid = true;
-      //     let val = "";
-      //     for (let o = 0; o < options; o++) {
-      //       if (val == "") {
-      //         val = tempCol[o][r];
-      //       } else if (val != tempCol[o][r]) {
-      //         valid = false;
-      //         break;
-      //       }
-      //     }
-
-      //     if (valid) {
-      //       this.setCell(r, i, tempCol[0][r]);
-      //     }
-      //   }
-      // }
     },
     checkRows() {
       for (let i = 0; i < this.boardSize; i++) {
+        console.group("checking row", i);
         this.board[i] = this.checkCollection(this.rows[i], this.board[i]);
+        console.log("returned collection", this.board[i]);
+        console.groupEnd();
       }
     },
 
     checkCollection(params, boardCol) {
-      if (params.length == 1 && params[0] == this.boardSize) {
-        for (let k = 0; k < this.boardSize; k++) {
-          boardCol[k] = "active";
-        }
-        return boardCol;
+      console.log("collection to check", params, boardCol);
+
+      //check if the collection is already filled
+      if (
+        params.reduce((a, b) => a + b, 0) ==
+        boardCol.filter((x) => x == "active").length
+      ) {
+        return boardCol.map((x) => (x == "" ? "clear" : x));
       }
 
+      //check if the param is the same size as the board
+      //then set all as active
+      if (params.length == 1 && params[0] == this.boardSize) {
+        return boardCol.map((x) => "active");
+      }
+
+      //get the number of possibilities for the collection
       let possibilities =
         this.boardSize -
         (params.reduce((a, b) => a + b, 0) + params.length - 1) +
         1;
+
       let options = [];
       for (let p = 0; p < possibilities; p++) {
         let option = [];
 
         let keepGoing = true;
+        //populate the first cells with clear depending on the
+        //possibility that we are creating
         for (let j = 0; j < p; j++) {
+          // check if the cell is already active, if so, this is
+          // is not a possibility any more
           if (boardCol[p] == "active") {
             keepGoing = false;
             break;
@@ -595,8 +593,11 @@ const app = Vue.createApp({
           continue;
         }
 
+        //populate the cells with active depending on the params
         for (let k = 0; k < params.length; k++) {
           for (let j = 0; j < params[k]; j++) {
+            // check if the cell is already clear, if so, this is
+            // is not a possibility any more
             if (boardCol[p] == "clear") {
               keepGoing = false;
               break;
@@ -606,14 +607,15 @@ const app = Vue.createApp({
           if (!keepGoing) {
             break;
           }
-          if (options.length < this.boardSize) {
-            option.push("clear");
-          }
+          // if (option.length < this.boardSize) {
+          //   option.push("clear");
+          // }
         }
         if (!keepGoing) {
           continue;
         }
 
+        //populate the rest of the cells with clear
         for (let i = option.length; i < this.boardSize; i++) {
           if (boardCol[i] == "active") {
             keepGoing = false;
@@ -626,13 +628,17 @@ const app = Vue.createApp({
           continue;
         }
 
+        //add the possibility to the list of options
         options.push(option);
       }
 
+      console.table(options);
+
+      //check if a cell has the same value in all the possibilities
       for (let r = 0; r < this.boardSize; r++) {
         let valid = true;
         let val = "";
-        for (let p = 0; p < possibilities; p++) {
+        for (let p = 0; p < options.length; p++) {
           if (val == "") {
             val = options[p][r];
           } else if (val != options[p][r]) {
@@ -651,27 +657,58 @@ const app = Vue.createApp({
 
     validateBoard() {
       for (let i = 0; i < this.boardSize; i++) {
-        for (let j = 0; j < this.boardSize; j++) {
-          if (this.board[i][j] == "") {
-            isValid = false;
-            return;
-          }
+        if (this.board[i].filter((x) => x == "").length > 0) {
+          isValid = false;
+          return;
         }
       }
       isValid = true;
     },
 
     solveBoard() {
-      while (!this.isValid) {
-        this.interactions++;
-        this.checkCols();
-        this.checkRows();
-        this.validateBoard();
-
-        if (this.interactions > 10) {
-          break;
+      if (this.checkType == "rows") {
+        console.group("checking row", this.idx);
+        this.board[this.idx] = this.checkCollection(
+          this.rows[this.idx],
+          this.board[this.idx]
+        );
+        console.log("returned collection", this.board[this.idx]);
+        console.groupEnd();
+        this.idx++;
+        if (this.idx >= this.boardSize) {
+          this.checkType = "cols";
+          this.idx = 0;
+        }
+      } else {
+        let col = [];
+        for (let j = 0; j < this.boardSize; j++) {
+          col.push(this.board[j][this.idx]);
+        }
+        console.group("checking column", this.idx);
+        col = this.checkCollection(this.cols[this.idx], col);
+        console.log("returned collection", col);
+        console.groupEnd();
+        for (let j = 0; j < this.boardSize; j++) {
+          this.board[j][this.idx] = col[j];
+        }
+        this.idx++;
+        if (this.idx >= this.boardSize) {
+          this.checkType = "rows";
+          this.idx = 0;
+          this.interactions++;
         }
       }
+
+      // do {
+      //   this.interactions++;
+      //   this.checkCols();
+      //   this.checkRows();
+      //   this.validateBoard();
+
+      //   if (this.interactions > 10) {
+      //     break;
+      //   }
+      // } while (!this.isValid);
     },
   },
 });
