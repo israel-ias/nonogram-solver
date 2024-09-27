@@ -14,39 +14,69 @@
 
     <section id="nonogram-board">
       <div>
-        <table :key="interactions">
-          <tr class="col-header">
-            <td></td>
-            <td v-for="(col, colIndex) in cols" :key="colIndex">
-              <p v-for="(hint, hintIndex) in col" :key="hintIndex">
-                {{ hint }}
-              </p>
-            </td>
-          </tr>
-          <tr v-for="(row, rowIndex) in board" :key="rowIndex">
-            <td class="row-header">
-              <span
-                v-for="(hint, hintIndex) in rows[rowIndex]"
-                :key="hintIndex"
-              >
-                {{ hint }}
-              </span>
-            </td>
-            <td
-              v-for="(cell, cellIndex) in row"
-              :key="cellIndex"
-              :class="cell"
-            ></td>
-          </tr>
-        </table>
+        <div>
+          <table :key="interactions">
+            <tr class="col-header">
+              <td></td>
+              <td v-for="(col, colIndex) in cols" :key="colIndex">
+                <p v-for="(hint, hintIndex) in col" :key="hintIndex">
+                  {{ hint }}
+                </p>
+              </td>
+            </tr>
+            <tr v-for="(row, rowIndex) in board" :key="rowIndex">
+              <td class="row-header">
+                <span
+                  v-for="(hint, hintIndex) in rows[rowIndex]"
+                  :key="hintIndex"
+                >
+                  {{ hint }}
+                </span>
+              </td>
+              <td
+                v-for="(cell, cellIndex) in row"
+                :key="cellIndex"
+                :class="cell"
+              ></td>
+            </tr>
+          </table>
+        </div>
+        <button v-on:click="solveBoard()">solve</button>
+
+        <br />
+        <br />
+        <p>{{interactions}} - {{isValid}} - {{checkType}} - idx: {{idx}}</p>
       </div>
-      <button v-on:click="solveBoard()">solve</button>
-      <br />
-      <br />
-      <p>{{interactions}} - {{isValid}} - {{checkType}} - idx: {{idx}}</p>
+      <div>
+        <table :key="optIdx"></table>
+            <tr class="col-header">
+              <td v-for="(col, colIndex) in cols" :key="colIndex">
+                <p v-for="(hint, hintIndex) in col" :key="hintIndex">
+                  {{ hint }}
+                </p>
+              </td>
+            </tr>
+            <tr v-for="(row, rowIndex) in board" :key="rowIndex">
+              <td class="row-header">
+                <span
+                  v-for="(hint, hintIndex) in rows[rowIndex]"
+                  :key="hintIndex"
+                >
+                  {{ hint }}
+                </span>
+              </td>
+              <td
+                v-for="(cell, cellIndex) in row"
+                :key="cellIndex"
+                :class="cell"
+              ></td>
+            </tr>
+          </table>
+      </div>
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@3.5.7/dist/vue.global.min.js"></script>
+    <script src="data10.js" type="module"></script>
     <script src="app.js"></script>
   </body>
 </html>
