@@ -1,18 +1,16 @@
+// formula to calculate the number of possibilities
+// calculation a!/(b!(a-b)!) stars and bars theorem
 const calculatePossibilities = (N: number, R: number) => {
 	R = Math.min(R, N - R);
-
 	let ans = 1;
 	for (let i = 0; i < R; i++) {
 		ans = ans * (N - i);
 		ans = ans / (i + 1);
 	}
 	return ans;
-
-	// calculation a!/(b!(a-b)!) stars and bars theorem
 };
 
 const generateOptions = (params: number[], boardSize: number): number[][] => {
-	console.log(params, boardSize);
 	const cluesSum = params.reduce((a, b) => a + b, 0);
 	const numberOfClues = params.length;
 	const minEmpty = params.length - 1;
@@ -24,7 +22,7 @@ const generateOptions = (params: number[], boardSize: number): number[][] => {
 		const firstParam = params[0];
 		params = params.slice(1);
 
-		for (let o = 0; o < freeSpaces; o++) {
+		for (let o = 0; o <= freeSpaces; o++) {
 			const result = [];
 
 			for (let j = 0; j < o; j++) {
@@ -36,7 +34,7 @@ const generateOptions = (params: number[], boardSize: number): number[][] => {
 			}
 			result.push(0);
 
-			const subOptions = generateOptions(params, boardSize - (boardSize - result.length));
+			const subOptions = generateOptions(params, boardSize - result.length);
 
 			for (let i = 0; i < subOptions.length; i++) {
 				const tmp = [...result];
