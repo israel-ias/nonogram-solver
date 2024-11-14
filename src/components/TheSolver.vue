@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import data from '../games/data20-b';
+import data from '../games/data20-111424';
 import { ref, onMounted, type Ref } from 'vue';
 import { generateColOptions, generateRowOptions } from '../helper/solver-handler';
 
@@ -43,7 +43,6 @@ let idx = ref(0);
 let board: Ref<string[][]> = ref([]);
 let rowsOptions: Ref<number[][][]> = ref([]);
 let colsOptions: Ref<number[][][]> = ref([]);
-let isFirstCall = ref(true);
 let working = ref(false);
 
 onMounted(() => {
