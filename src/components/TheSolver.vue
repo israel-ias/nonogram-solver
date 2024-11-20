@@ -26,13 +26,13 @@
 			<div v-if="working" class="loader"></div>
 			<button v-if="!working && !isValid" v-on:click="solveBoard()">solve</button>
 
-			<p>{{ interactions }} - {{ isValid }} - {{ checkType }} - idx: {{ idx }}</p>
+			<!-- <p>{{ interactions }} - {{ isValid }} - {{ checkType }} - idx: {{ idx }}</p> -->
 		</div>
 	</section>
 </template>
 
 <script setup lang="ts">
-import data from '../games/data20-111424';
+import data from '../games/data15';
 import { ref, onMounted, type Ref } from 'vue';
 import { generateColOptions, generateRowOptions } from '../helper/solver-handler';
 
@@ -177,18 +177,35 @@ const solveBoard = () => {
 	rowsOptions.value = generateRowOptions(data.rows, data.boardSize);
 	colsOptions.value = generateColOptions(data.cols, data.boardSize);
 
-	while (!isValid.value) {
-		if (checkType.value == 'rows') {
-			checkRows();
-		} else {
-			checkCols();
-		}
-		validateBoard();
+	// while (!isValid.value) {
+	// if (checkType.value == 'rows') {
+	// 	checkRows();
+	// } else {
+	// 	checkCols();
+	// }
+	// validateBoard();
+	working.value = true;
+	setTimeout(() => {
+		interact();
+	}, 50);
 
-		if (interactions.value > 1000) {
-			break;
-		}
+	// }
+};
+
+const interact = () => {
+	if (checkType.value == 'rows') {
+		checkRows();
+	} else {
+		checkCols();
 	}
+	validateBoard();
+
+	if (isValid.value || interactions.value > 1000) {
+		working.value = false;
+		return;
+	}
+
+	interact();
 };
 </script>
 
